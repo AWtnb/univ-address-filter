@@ -95,6 +95,7 @@ function search(){
     if (pattern.length < 1) {
         document.querySelector("#content").style.display = "block";
         document.querySelector("#found").style.display = "none";
+        return
     }
 
     document.querySelector("#content").style.display = "none";
