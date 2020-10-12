@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <form id="auth" onsubmit="return false;">
+        <input type="password" placeholder="password" >
+    </form>
+
+    <form id="search" style="display:none" onsubmit="return false;">
+        <input type="text" name="pattern" placeholder="search" >
+    </form>
+
+    <div id="status"></div>
+    <div id="content"></div>
+    <div id="found"></div>
+
+<script>
+
+// function to group object array by property "Name"
+function groupUniv(univObjArray){
+    const map = new Map();
+    univObjArray.forEach(univ => {
+        if (map.has(univ.Name)) {
+            map.get(univ.Name).push(univ);
+        }
+        else {
+            map.set(univ.Name, [univ]);
+        }
+    });
+    return map;
+}
+
+// function to markup as HTML
+function markupUnivData(univObjArray){
+    const markup = [];
+    const grouped = groupUniv(univObjArray);
+    grouped.forEach((val, key) => {
+        markup.push(`<div class="container">`);
+        markup.push(`<h3>${key}</h3>`);
+        const tableRow = val.map(univ => {
+            return `<tr><td>${univ.Faculty}</td><td>${univ.Zipcode}</td><td>${univ.Address}</td></tr>`;
+        }).join("");
+        markup.push(`
+        <table>
+            <thead>
+                <th>学部</th><th>郵便番号</th><th>所在地</th>
+            </thead>
+            ${tableRow}
+        </table>`
+        );
+        markup.push(`</div>`);
+    });
+    return markup.join("\n");
+}
+
+// triggered by button click
+const auth = document.querySelector("#auth");
+auth.addEventListener("submit", () => {
+    const statusArea = document.querySelector("#status");
+    const password = auth.querySelector("input[type=password]").value;
+    statusArea.innerHTML = "読込中";
+    const API_END_POINT = "https://script.google.com/macros/s/AKfycby3jJf0JktszqDv35IlmoHJkzY_KN00Hj7EWYliGNvlTyhj1XU/exec";
+    const req = new XMLHttpRequest();
+    req.responseType = "json";
+    req.addEventListener("abort", () => {
+        statusArea.innerHTML = "読込失敗";
+    });
+    req.addEventListener("load", event => {
+        const res = event.target.response;
+        if(res.status != "ok") {
+            statusArea.innerHTML = "パスワードが違います";
+            return
+        }
+        auth.style.display = "none";
+        statusArea.style.display = "none";
+        document.querySelector("#search").style.display = "inline";
+        document.querySelector("#content").innerHTML = markupUnivData(res.data);
+    });
+    req.open("GET", `${API_END_POINT}?password=${password}`);
+    req.send();
+});
+
+let cache;
+function initCache () {
+    cache = document.querySelectorAll(".container");
+}
+
+// incremental search
+document.querySelector("#search input").addEventListener("keyup", search);
+function search(){
+    const pattern = document.querySelector("#search input").value;
+    if (pattern.length < 1) {
+        document.querySelector("#content").style.display = "block";
+        document.querySelector("#found").style.display = "none";
+    }
+
+    document.querySelector("#content").style.display = "none";
+    document.querySelector("#found").style.display = "block";
+    if (!cache) {
+        initCache();
+    }
+    let markup = "";
+    const length = cache.length;
+    for (let i = 0; i < length; i++) {
+        if (cache[i].firstElementChild.innerText.indexOf(pattern) != -1) {
+            markup += cache[i].innerHTML;
+        }
+    }
+    document.querySelector("#found").innerHTML = markup;
+}
+
+</script>
+</body>
+</html>
