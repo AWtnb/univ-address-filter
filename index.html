@@ -17,7 +17,13 @@
     <div id="content"></div>
     <div id="found"></div>
 
+<script type="text/javascript" src="sha256.js"></script>
 <script>
+function hash(text) {
+    const sha = new jsSHA('SHA-256', 'TEXT');
+    sha.update(text);
+    return sha.getHash('HEX');
+}
 
 // function to group object array by property "Name"
 function groupUniv(univObjArray){
@@ -79,7 +85,7 @@ auth.addEventListener("submit", () => {
         document.querySelector("#search").style.display = "inline";
         document.querySelector("#content").innerHTML = markupUnivData(res.data);
     });
-    req.open("GET", `${API_END_POINT}?password=${password}`);
+    req.open("GET", `${API_END_POINT}?password=${hash(password)}`);
     req.send();
 });
 
