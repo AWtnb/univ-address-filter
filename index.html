@@ -69,7 +69,7 @@ auth.addEventListener("submit", () => {
     const statusArea = document.querySelector("#status");
     const password = auth.querySelector("input[type=password]").value;
     statusArea.innerHTML = "読込中";
-    const API_END_POINT = "https://script.google.com/macros/s/AKfycby3jJf0JktszqDv35IlmoHJkzY_KN00Hj7EWYliGNvlTyhj1XU/exec";
+    const API_END_POINT = "https://script.google.com/macros/s/AKfycbx7If24u70te5KvBuBQcBZqmTEZA7lud1ZzxgvMHM1SkCrwkGwc31ZzJH6gOcResR6F/exec";
     const req = new XMLHttpRequest();
     req.responseType = "json";
     req.addEventListener("abort", () => {
